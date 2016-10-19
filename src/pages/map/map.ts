@@ -2,11 +2,17 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 
 import { IgnService } from '../../providers/ign.service';
+import { LocationService } from '../../providers/location.service';
 
 // npm install @types/leaflet --save-dev --save-exact
 import L from "leaflet";
 
-import { BackgroundGeolocation } from 'ionic-native';
+/*
+TODO :
+- Refresh map when location is successful,
+- Remove the marker and the possibilty to move it
+*/
+
 import { Device } from 'ionic-native';
 
 /*
@@ -28,12 +34,12 @@ export class MapPage {
   private icon: any;
   private _latLngs: any;
   private polyline: any;
-  private currentLocation: any;
 
   constructor(
     public navCtrl: NavController,
     public params: NavParams,
     public ignService: IgnService,
+    public locationService: LocationService,
   ) {
     this._latLng = L.latLng(44.13, 2.18);
     let key = this.getIGNKey();
@@ -74,6 +80,7 @@ export class MapPage {
 
   ionViewDidLoad() {
     console.log('Hello Map Page');
+    this.start();
     console.log(this.params.get('id'));
     // workaround map is not correctly displayed
     // maybe this should be done in some other event
@@ -83,11 +90,13 @@ export class MapPage {
   loadMap() {
       this.map = L
         .map("map")
-        .setView(this.latLng, 13)
+        .setView(this.latLng, 12)
         .on("click", this.onMapClicked.bind(this))
 
-      L.tileLayer(this._layer)
-        .addTo(this.map);
+      L.tileLayer(this._layer, {
+        minZoom: 4,
+        maxZoom: 14
+      }).addTo(this.map);
       // todo: clean
       this.icon = L.icon({
         iconUrl: './assets/images_leaflet/marker-icon.png'
@@ -129,25 +138,31 @@ export class MapPage {
     console.log(device);
     switch(device){
       case 'iOS':
-        console.log('ios');
         IGNKey = "6mekcc9zftuvbmwhs3zd6y5j";
         this.getConf(IGNKey);
         break;
       case 'Android':
-        console.log('Android');
         IGNKey = "2cxnsa750kc1q7tj0xfsnvwm";
         break;
       default:
-      console.log('default');
       IGNKey = "2cxnsa750kc1q7tj0xfsnvwm";
     }
     return IGNKey;
   }
 
+  start(){
+    this.locationService.startTracking();
+  }
+
+  stop(){
+    this.locationService.stopTracking();
+  }
+
   findLocation() {
     console.log('find location');
-    this.currentLocation = BackgroundGeolocation.getLocations();
-    this.map.setView(this.currentLocation, 13);
+    console.log(this.locationService.lat, this.locationService.lng );
+    this.latLng = L.latLng(this.locationService.lat, this.locationService.lng);
+    this.map.setView(L.latLng(this.locationService.lat, this.locationService.lng), 13);
   }
 
 }

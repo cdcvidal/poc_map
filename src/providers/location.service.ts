@@ -3,6 +3,12 @@ import { Geolocation, Geoposition, BackgroundGeolocation } from 'ionic-native';
 import 'rxjs/add/operator/filter';
 
 /*
+  TODO :
+  - Test if location is enable see doc Background Geolocation,
+  - test foreground with BG
+*/
+
+/*
   Generated class for the LocationTracker provider.
 
   See https://angular.io/docs/ts/latest/guide/dependency-injection.html

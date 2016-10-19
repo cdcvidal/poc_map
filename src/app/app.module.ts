@@ -6,6 +6,7 @@ import { ItemDetailsPage } from '../pages/item-details/item-details';
 import { ListPage } from '../pages/list/list';
 import { MapPage } from '../pages/map/map';
 import { IgnService } from '../providers/ign.service';
+import { LocationService } from '../providers/location.service';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { IgnService } from '../providers/ign.service';
     MapPage
   ],
   providers: [
-    IgnService
+    IgnService,
+    LocationService
   ]
 })
 export class AppModule {}
