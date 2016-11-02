@@ -5,6 +5,8 @@ import { HelloIonicPage } from '../pages/hello-ionic/hello-ionic';
 import { ItemDetailsPage } from '../pages/item-details/item-details';
 import { ListPage } from '../pages/list/list';
 import { MapPage } from '../pages/map/map';
+import { MapContentModal } from '../pages/map/map.modal';
+
 import { IgnService } from '../providers/ign.service';
 import { LocationService } from '../providers/location.service';
 
@@ -15,6 +17,7 @@ import { LocationService } from '../providers/location.service';
     ItemDetailsPage,
     ListPage,
     MapPage,
+    MapContentModal,
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -25,7 +28,8 @@ import { LocationService } from '../providers/location.service';
     HelloIonicPage,
     ItemDetailsPage,
     ListPage,
-    MapPage
+    MapPage,
+    MapContentModal,
   ],
   providers: [
     IgnService,

@@ -1,20 +1,23 @@
 import { Component } from '@angular/core';
-import { BackgroundGeolocation } from 'ionic-native';
+
+import { MapContentModal } from '../map/map.modal';
+
+import { ModalController } from 'ionic-angular';
+
+
 
 
 @Component({
   templateUrl: 'hello-ionic.html'
 })
 export class HelloIonicPage {
-  constructor() {
+  constructor(
+    public modalCtrl: ModalController,
+  ) { }
 
-  }
-  stopLocation(){
-    BackgroundGeolocation.stop();
-    console.log("stop location");
-  }
-  restartLocation(){
-    console.log("restart location without option");
-    BackgroundGeolocation.start();
-  }
+  openModal() {
+   let modal = this.modalCtrl.create(MapContentModal);
+   modal.present();
+ }
+
 }

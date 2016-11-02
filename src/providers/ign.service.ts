@@ -22,6 +22,7 @@ export class IgnService {
   getAutoConf(key): Observable<Response>{
     let url = "http://wxs.ign.fr/"+key+"/autoconf/?output=json&callback=OpenLayers.Protocol.Script.registry.regId1";
     let response = this.http.get(url).map(res => res.json());
+    console.log(response);
     return response;
   }
 }

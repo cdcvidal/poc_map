@@ -3,7 +3,8 @@ import { Component, ViewChild } from '@angular/core';
 import { Platform, MenuController, Nav } from 'ionic-angular';
 
 import { StatusBar } from 'ionic-native';
-import { BackgroundGeolocation } from 'ionic-native';
+import { LocationService } from '../providers/location.service';
+
 
 import { HelloIonicPage } from '../pages/hello-ionic/hello-ionic';
 import { ListPage } from '../pages/list/list';
@@ -22,7 +23,8 @@ export class MyApp {
 
   constructor(
     public platform: Platform,
-    public menu: MenuController
+    public menu: MenuController,
+    public locationService: LocationService,
   ) {
     this.initializeApp();
 
@@ -40,7 +42,12 @@ export class MyApp {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
+      this.startGeoloc();
     });
+  }
+
+  startGeoloc(){
+    this.locationService.startTracking();
   }
 
   openPage(page) {

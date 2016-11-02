@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, Platform, ViewController  } from 'ionic-angular';
 
-import { IgnService } from '../../providers/ign.service';
 import { LocationService } from '../../providers/location.service';
 
 // npm install @types/leaflet --save-dev --save-exact
@@ -22,51 +21,51 @@ import { Device } from 'ionic-native';
   Ionic pages and navigation.
 */
 @Component({
-  selector: 'page-map',
-  templateUrl: 'map.html',
-  providers: [IgnService]
+  template: `
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>
+            MAP MODAL
+          </ion-title>
+          <ion-buttons start>
+            <button ion-button (click)="dismiss()">
+              <span color="primary" showWhen="ios">Cancel</span>
+              <ion-icon name="md-close" showWhen="android,windows"></ion-icon>
+            </button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div class="map-container">
+          <div id="map" style="width: 100%; height: 100%">
+          </div>
+        </div>
+        <ion-fab right bottom>
+          <button ion-fab color="primary" class="find-location" (click)="findLocation()" ><ion-icon name="locate"></ion-icon></button>
+        </ion-fab>
+      </ion-content>
+      `
 })
-export class MapPage {
+
+export class MapContentModal {
   private map: any;
   private _latLng: any;
   private marker: any;
   private _layer:any;
   private icon: any;
-  private _latLngs: any;
-  private polyline: any;
 
   constructor(
     public navCtrl: NavController,
     public params: NavParams,
-    public ignService: IgnService,
     public locationService: LocationService,
+    public viewCtrl: ViewController,
+    public platform: Platform,
   ) {
     this._latLng = L.latLng(44.13, 2.18);
     let key = this.getIGNKey();
-    // console.log(key);
     this._layer = this.layerUrl(
         key , "GEOGRAPHICALGRIDSYSTEMS.MAPS"
     );
-    this._latLngs = [
-        [44.12, 2.1],
-        [44.23, 2.14],
-        [44.34, 2.23],
-        [44.12, 2.31],
-        [44.25, 2.42],
-        [44.47, 2.51]
-    ];
-  }
-
-  getConf(key){
-    this.ignService.getAutoConf(key).subscribe(
-      data => {
-        console.log(data);
-      },
-      err => {
-        console.log(err);
-      },
-      () => console.log("AUTOCONF complete")
-    )
   }
 
   set latLng(value) {
@@ -107,8 +106,8 @@ export class MapPage {
         .openPopup()
         .addTo(this.map);
 
-      this.polyline = L.polyline(this._latLngs, {color: 'red'}).addTo(this.map);
-      this.map.fitBounds(this.polyline.getBounds());
+      // this.polyline = L.polyline(this._latLngs, {color: 'red'}).addTo(this.map);
+      // this.map.fitBounds(this.polyline.getBounds());
 
   }
 
@@ -131,7 +130,7 @@ export class MapPage {
     switch(device){
       case 'iOS':
         IGNKey = "6mekcc9zftuvbmwhs3zd6y5j";
-        this.getConf(IGNKey);
+        // this.getConf(IGNKey);
         break;
       case 'Android':
         // IGNKey = "l545bivkgkykuqvrkzaijx5z";
@@ -144,21 +143,22 @@ export class MapPage {
   }
 
   findLocation() {
-    console.log('find location lat long', this.locationService.lat, this.locationService.lng );
-    if (this.locationService.lat != 0 && this.locationService.lng  != 0){
-      let position = L.latLng(this.locationService.lat, this.locationService.lng);
-      this.icon = L.icon({
-                      iconUrl: './assets/images_leaflet/location_gps-1x.png'
-                    })
-      this.marker = L.marker(position, {icon: this.icon})
-        .bindPopup('Votre position est : '+ position+'.')
-        .openPopup()
-        .addTo(this.map);
+    console.log('find location');
+    console.log(this.locationService.lat, this.locationService.lng );
+    let position = L.latLng(this.locationService.lat, this.locationService.lng);
+    this.icon = L.icon({
+                    iconUrl: './assets/images_leaflet/location_gps-1x.png'
+                  })
+    this.marker = L.marker(position, {icon: this.icon})
+      .bindPopup('Votre position est : '+ position+'.')
+      .openPopup()
+      .addTo(this.map);
 
-      this.map.setView(position, 18);
-    } else {
-      alert("Location is not found.");
-    }
+    this.map.setView(position, 18);
+  }
+
+  dismiss() {
+    this.viewCtrl.dismiss();
   }
 
 }
