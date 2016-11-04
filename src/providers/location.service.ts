@@ -1,5 +1,9 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Geolocation, Geoposition, BackgroundGeolocation } from 'ionic-native';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
+import { CurrentLocation } from './currentlocation.model';
+
 import 'rxjs/add/operator/filter';
 
 /*
@@ -21,28 +25,44 @@ export class LocationService {
   public lat: number = 0;
   public lng: number = 0;
 
+  private _userLocation$: BehaviorSubject<CurrentLocation[]> = new BehaviorSubject([]);
+  // private dataStore: {  // This is where we will store our data in memory
+  //   lastUpdate: number,
+  //   items: CurrentLocation[]
+  // };
   constructor( public zone: NgZone ) {
     console.log('Hello LocationTracker Provider');
   }
 
+  get userLocation$(){
+    return this._userLocation$.asObservable();
+  }
 
   startTracking() {
-
-    // Background Tracking
     let config = {
-      desiredAccuracy: 0,
-      stationaryRadius: 20,
-      distanceFilter: 10,
+      stationaryRadius: 50,
+      distanceFilter: 50,
+      desiredAccuracy: 10,
       debug: true,
-      // Android only section
-      interval: 60000,
-      locationProvider: 1,
-      fastestInterval: 5000,
-      activitiesInterval: 10000,
-    };
+      notificationTitle: 'Background tracking',
+      notificationText: 'enabled',
+      notificationIconColor: '#FEDD1E',
+      notificationIconLarge: 'mappointer_large',
+      notificationIconSmall: 'mappointer_small',
+      locationProvider: 0,//backgroundGeolocation.provider.ANDROID_DISTANCE_FILTER_PROVIDER,
+      interval: 10,
+      fastestInterval: 5,
+      activitiesInterval: 10,
+      stopOnTerminate: false,
+      startOnBoot: false,
+      startForeground: true,
+      stopOnStillActivity: true,
+      activityType: 'AutomotiveNavigation',
 
-    // switch to FOREGROUND mode
-    // BackgroundGeolocation.switchMode((<any>BackgroundGeolocation).mode.FOREGROUND);
+      pauseLocationUpdates: false,
+      saveBatteryOnBackground: false,
+      maxLocations: 100
+    };
 
     BackgroundGeolocation.watchLocationMode().then((enabled) => {
       if(enabled)
@@ -81,10 +101,9 @@ export class LocationService {
 
       // Run update inside of Angular's zone
       this.zone.run(() => {
-        if (location.latitude != 0 && location.longitude != 0){
-          this.lat = location.latitude;
-          this.lng = location.longitude;
-        }
+        this.lat = location.latitude;
+        this.lng = location.longitude;
+        this._userLocation$.next(location);
       });
 
       BackgroundGeolocation.finish();

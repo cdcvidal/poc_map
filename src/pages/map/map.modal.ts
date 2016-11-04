@@ -36,6 +36,10 @@ import { Device } from 'ionic-native';
         </ion-toolbar>
       </ion-header>
       <ion-content>
+        <div class="location">
+          <h3>Current Latitude: {{locationService.lat}}</h3>
+          <h3>Current Longitude: {{locationService.lng}}</h3>
+        </div>
         <div class="map-container">
           <div id="map" style="width: 100%; height: 100%">
           </div>
@@ -53,6 +57,8 @@ export class MapContentModal {
   private marker: any;
   private _layer:any;
   private icon: any;
+  private _latLngs: any;
+  private polyline: any;
 
   constructor(
     public navCtrl: NavController,
@@ -66,6 +72,14 @@ export class MapContentModal {
     this._layer = this.layerUrl(
         key , "GEOGRAPHICALGRIDSYSTEMS.MAPS"
     );
+    this._latLngs = [
+        [44.12, 2.1],
+        [44.23, 2.14],
+        [44.34, 2.23],
+        [44.12, 2.31],
+        [44.25, 2.42],
+        [44.47, 2.51]
+    ];
   }
 
   set latLng(value) {
@@ -88,11 +102,11 @@ export class MapContentModal {
   loadMap() {
       this.map = L
         .map("map")
-        .setView(this.latLng, 12)
-        // .on("click", this.onMapClicked.bind(this))
+        .setView(this.latLng, 14)
+        .on("click", this.onMapClicked.bind(this))
 
       L.tileLayer(this._layer, {
-        minZoom: 8,
+        minZoom: 14,
         maxZoom: 18
       }).addTo(this.map);
 
@@ -106,8 +120,8 @@ export class MapContentModal {
         .openPopup()
         .addTo(this.map);
 
-      // this.polyline = L.polyline(this._latLngs, {color: 'red'}).addTo(this.map);
-      // this.map.fitBounds(this.polyline.getBounds());
+      this.polyline = L.polyline(this._latLngs, {color: 'red'}).addTo(this.map);
+      this.map.fitBounds(this.polyline.getBounds());
 
   }
 
@@ -133,8 +147,9 @@ export class MapContentModal {
         // this.getConf(IGNKey);
         break;
       case 'Android':
-        // IGNKey = "l545bivkgkykuqvrkzaijx5z";
-        IGNKey = "nxz5xok1i0l9gtsu0wcqi1en";
+        //KEY PRO
+        IGNKey = "l545bivkgkykuqvrkzaijx5z";
+        // IGNKey = "nxz5xok1i0l9gtsu0wcqi1en";
         break;
       default:
       IGNKey = "2cxnsa750kc1q7tj0xfsnvwm";
@@ -143,18 +158,27 @@ export class MapContentModal {
   }
 
   findLocation() {
-    console.log('find location');
-    console.log(this.locationService.lat, this.locationService.lng );
-    let position = L.latLng(this.locationService.lat, this.locationService.lng);
-    this.icon = L.icon({
-                    iconUrl: './assets/images_leaflet/location_gps-1x.png'
-                  })
-    this.marker = L.marker(position, {icon: this.icon})
-      .bindPopup('Votre position est : '+ position+'.')
-      .openPopup()
-      .addTo(this.map);
+    this.locationService.userLocation$.subscribe(location => {
+        console.log('observable location', location);
+      },err => {
+        console.log('observable location error', err);
+    });
+    
+    console.log('find location lat long', this.locationService.lat, this.locationService.lng );
+    if (this.locationService.lat != 0 && this.locationService.lng  != 0){
+      let position = L.latLng(this.locationService.lat, this.locationService.lng);
+      this.icon = L.icon({
+                      iconUrl: './assets/images_leaflet/location_gps-1x.png'
+                    })
+      this.marker = L.marker(position, {icon: this.icon})
+        .bindPopup('Votre position est : '+ position+'.')
+        .openPopup()
+        .addTo(this.map);
 
-    this.map.setView(position, 18);
+      this.map.setView(position, 18);
+    } else {
+      alert("loc lat/long: 0/0 ");
+    }
   }
 
   dismiss() {

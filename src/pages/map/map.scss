@@ -1,8 +1,14 @@
 page-map {
   .map-container {
-   width: 100%;
-   position: absolute;
-   top: 0px;
-   bottom: 0px;
+     width: 100%;
+     position: absolute;
+     top: 0px;
+     bottom: 0px;
+ }
+ .location{
+    position: absolute;
+    z-index: 500;
+    background-color: white;
+    right: 0;
  }
 }
